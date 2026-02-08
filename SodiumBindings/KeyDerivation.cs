@@ -42,7 +42,7 @@ public static class KeyDerivation
         ReadOnlySpan<byte> inputKeyingMaterial
     )
     {
-        Validate.Equals(key.Length, crypto_kdf_hkdf_sha256_keybytes());
+        Validate.GreaterOrEqualTo(key.Length, crypto_kdf_hkdf_sha256_keybytes());
 
         crypto_kdf_hkdf_sha256_extract(key, salt, (nuint)salt.Length, inputKeyingMaterial, (nuint)inputKeyingMaterial.Length).EnsureSuccess();
     }

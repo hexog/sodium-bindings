@@ -38,8 +38,8 @@ public static class Aegis256
     {
         Validate.GreaterOrEqualTo(ciphertext.Length, GetCiphertextLength((ulong)plaintext.Length));
         Validate.Range(plaintext.Length, 0u, crypto_aead_aegis256_messagebytes_max());
-        Validate.Equals(nonce.Length, crypto_aead_aegis256_npubbytes());
-        Validate.Equals(key.Length, crypto_aead_aegis256_keybytes());
+        Validate.GreaterOrEqualTo(nonce.Length, crypto_aead_aegis256_npubbytes());
+        Validate.GreaterOrEqualTo(key.Length, crypto_aead_aegis256_keybytes());
 
         crypto_aead_aegis256_encrypt(ciphertext, out _, plaintext, (ulong)plaintext.Length, additionalData, (ulong)additionalData.Length, null, nonce, key).EnsureSuccess();
     }
@@ -54,8 +54,8 @@ public static class Aegis256
     {
         Validate.GreaterOrEqualTo(plaintext.Length, GetPlaintextLength((ulong)ciphertext.Length));
         Validate.Range(plaintext.Length, 0u, crypto_aead_aegis256_messagebytes_max());
-        Validate.Equals(nonce.Length, crypto_aead_aegis256_npubbytes());
-        Validate.Equals(key.Length, crypto_aead_aegis256_keybytes());
+        Validate.GreaterOrEqualTo(nonce.Length, crypto_aead_aegis256_npubbytes());
+        Validate.GreaterOrEqualTo(key.Length, crypto_aead_aegis256_keybytes());
 
         var exitCode = crypto_aead_aegis256_decrypt(
             plaintext, out _, null, ciphertext, (ulong)ciphertext.Length, additionalData, (ulong)additionalData.Length, nonce, key
