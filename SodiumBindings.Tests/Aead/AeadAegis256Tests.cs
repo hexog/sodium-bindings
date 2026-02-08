@@ -140,4 +140,72 @@ public class Aegis256Tests
 
         await Assert.That(actual).IsFalse();
     }
+
+    [Test]
+    public async Task EncryptDetached()
+    {
+        var actualCiphertext = new byte[(ulong)Message.Length];
+        var tagBytes = (int)Aegis256.AdditionalBytes;
+        var actualTag = new byte[tagBytes];
+        Aegis256.EncryptDetached(
+            actualCiphertext, actualTag,
+            Message,
+            null,
+            Nonce, Key
+        );
+
+        await Assert.That(actualTag.AsSpan().SequenceEqual(ExpectedCiphertext.AsSpan(^tagBytes..))).IsTrue();
+        await Assert.That(actualCiphertext.AsSpan().SequenceEqual(ExpectedCiphertext.AsSpan(..^tagBytes))).IsTrue();
+    }
+
+    [Test]
+    public async Task EncryptDetachedWithAdditionalData()
+    {
+        var actualCiphertext = new byte[Message.Length];
+        var tagBytes = (int)Aegis256.AdditionalBytes;
+        var actualTag = new byte[tagBytes];
+        Aegis256.EncryptDetached(
+            actualCiphertext, actualTag,
+            Message,
+            AdditionalData,
+            Nonce, Key
+        );
+
+        await Assert.That(actualTag.AsSpan().SequenceEqual(ExpectedCiphertextWithAdditionalData.AsSpan(^tagBytes..))).IsTrue();
+        await Assert.That(actualCiphertext.AsSpan().SequenceEqual(ExpectedCiphertextWithAdditionalData.AsSpan(..^tagBytes))).IsTrue();
+    }
+
+    [Test]
+    public async Task DecryptDetached()
+    {
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertext.Length)];
+        var tagBytes = (int)Aegis256.AdditionalBytes;
+        var actual = Aegis256.DecryptDetached(
+            actualPlaintext,
+            ExpectedCiphertext.AsSpan(..^tagBytes),
+            ExpectedCiphertext.AsSpan(^tagBytes..),
+            null,
+            Nonce, Key
+        );
+
+        await Assert.That(actual).IsTrue();
+        await Assert.That(actualPlaintext.AsSpan().SequenceEqual(Message)).IsTrue();
+    }
+
+    [Test]
+    public async Task DecryptDetachedWithAdditionalData()
+    {
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var tagBytes = (int)Aegis256.AdditionalBytes;
+        var actual = Aegis256.DecryptDetached(
+            actualPlaintext,
+            ExpectedCiphertextWithAdditionalData.AsSpan(..^tagBytes),
+            ExpectedCiphertextWithAdditionalData.AsSpan(^tagBytes..),
+            AdditionalData,
+            Nonce, Key
+        );
+
+        await Assert.That(actual).IsTrue();
+        await Assert.That(actualPlaintext.AsSpan().SequenceEqual(Message)).IsTrue();
+    }
 }

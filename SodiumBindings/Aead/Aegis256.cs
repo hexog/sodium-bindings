@@ -63,4 +63,42 @@ public static class Aegis256
 
         return exitCode == 0;
     }
+
+    public static void EncryptDetached(
+        Span<byte> ciphertext,
+        Span<byte> mac,
+        ReadOnlySpan<byte> plaintext,
+        ReadOnlySpan<byte> additionalData,
+        ReadOnlySpan<byte> nonce,
+        ReadOnlySpan<byte> key
+    )
+    {
+        Validate.GreaterOrEqualTo(ciphertext.Length, plaintext.Length);
+        Validate.Range(plaintext.Length, 0u, crypto_aead_aegis256_messagebytes_max());
+        Validate.GreaterOrEqualTo(nonce.Length, crypto_aead_aegis256_npubbytes());
+        Validate.GreaterOrEqualTo(key.Length, crypto_aead_aegis256_keybytes());
+
+        crypto_aead_aegis256_encrypt_detached(ciphertext, mac, out _, plaintext, (ulong)plaintext.Length, additionalData, (ulong)additionalData.Length, null, nonce, key).EnsureSuccess();
+    }
+
+    public static bool DecryptDetached(
+        Span<byte> plaintext,
+        ReadOnlySpan<byte> ciphertext,
+        ReadOnlySpan<byte> mac,
+        ReadOnlySpan<byte> additionalData,
+        ReadOnlySpan<byte> nonce,
+        ReadOnlySpan<byte> key
+    )
+    {
+        Validate.GreaterOrEqualTo(plaintext.Length, ciphertext.Length);
+        Validate.Range(plaintext.Length, 0u, crypto_aead_aegis256_messagebytes_max());
+        Validate.GreaterOrEqualTo(nonce.Length, crypto_aead_aegis256_npubbytes());
+        Validate.GreaterOrEqualTo(key.Length, crypto_aead_aegis256_keybytes());
+
+        var exitCode = crypto_aead_aegis256_decrypt_detached(
+            plaintext, null, ciphertext, (ulong)ciphertext.Length, mac, additionalData, (ulong)additionalData.Length, nonce, key
+        );
+
+        return exitCode == 0;
+    }
 }
