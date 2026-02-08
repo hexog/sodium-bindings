@@ -91,12 +91,12 @@ internal static partial class Sodium
 
     [LibraryImport(LibraryName)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial int crypto_sign_init(IntPtr state);
+    public static partial int crypto_sign_init(Span<byte> state);
 
     [LibraryImport(LibraryName)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial int crypto_sign_update(
-        IntPtr state,
+        Span<byte> state,
         ReadOnlySpan<byte> m,
         ulong mlen
     );
@@ -104,7 +104,7 @@ internal static partial class Sodium
     [LibraryImport(LibraryName)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial int crypto_sign_final_create(
-        IntPtr state,
+        Span<byte> state,
         Span<byte> sig,
         out ulong siglen_p,
         ReadOnlySpan<byte> sk
@@ -113,7 +113,7 @@ internal static partial class Sodium
     [LibraryImport(LibraryName)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial int crypto_sign_final_verify(
-        IntPtr state,
+        Span<byte> state,
         ReadOnlySpan<byte> sig,
         ReadOnlySpan<byte> pk
     );

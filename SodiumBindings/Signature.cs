@@ -38,4 +38,11 @@ public static class Signature
 
         return exitCode == 0;
     }
+
+    public static IncrementalSignature Create()
+    {
+        var incrementalSignature = new IncrementalSignature();
+        incrementalSignature.Initialize();
+        return incrementalSignature;
+    }
 }
