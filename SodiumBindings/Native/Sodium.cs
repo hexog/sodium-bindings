@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace SodiumBindings.Native;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public static partial class Sodium
+internal static partial class Sodium
 {
     private const string LibraryName = "libsodium";
 

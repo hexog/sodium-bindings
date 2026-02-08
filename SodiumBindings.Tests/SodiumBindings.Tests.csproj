@@ -8,11 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TUnit" Version="1.12.111" />
+    <PackageReference Include="TUnit" Version="1.13.11" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SodiumBindings\SodiumBindings.csproj" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <Using Include="SodiumBindings.Native.Sodium" Static="true" />
+  </ItemGroup>
+
 </Project>

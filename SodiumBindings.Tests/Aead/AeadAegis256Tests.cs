@@ -1,6 +1,8 @@
-namespace SodiumBindings.Tests;
+using SodiumBindings.Aead;
 
-public class AeadAegis256Tests
+namespace SodiumBindings.Tests.Aead;
+
+public class Aegis256Tests
 {
     private static readonly byte[] Key = Convert.FromHexString("a4559fccd62cb8290e6964520330badb13db17fe3b370541eb84f4e1bce2795a");
 
@@ -19,8 +21,8 @@ public class AeadAegis256Tests
     [Test]
     public async Task Encrypt()
     {
-        var actualCiphertext = new byte[AeadAegis256.GetCiphertextLength((ulong)Message.Length)];
-        AeadAegis256.Encrypt(
+        var actualCiphertext = new byte[Aegis256.GetCiphertextLength((ulong)Message.Length)];
+        Aegis256.Encrypt(
             actualCiphertext,
             Message,
             null,
@@ -33,8 +35,8 @@ public class AeadAegis256Tests
     [Test]
     public async Task EncryptWithAdditionalData()
     {
-        var actualCiphertext = new byte[AeadAegis256.GetCiphertextLength((ulong)Message.Length)];
-        AeadAegis256.Encrypt(
+        var actualCiphertext = new byte[Aegis256.GetCiphertextLength((ulong)Message.Length)];
+        Aegis256.Encrypt(
             actualCiphertext,
             Message,
             AdditionalData,
@@ -47,8 +49,8 @@ public class AeadAegis256Tests
     [Test]
     public async Task Decrypt()
     {
-        var actualPlaintext = new byte[AeadAegis256.GetPlaintextLength((ulong)ExpectedCiphertext.Length)];
-        var actual = AeadAegis256.Decrypt(
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertext.Length)];
+        var actual = Aegis256.Decrypt(
             actualPlaintext,
             ExpectedCiphertext,
             null,
@@ -62,8 +64,8 @@ public class AeadAegis256Tests
     [Test]
     public async Task DecryptWithAdditionalData()
     {
-        var actualPlaintext = new byte[AeadAegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
-        var actual = AeadAegis256.Decrypt(
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var actual = Aegis256.Decrypt(
             actualPlaintext,
             ExpectedCiphertextWithAdditionalData,
             AdditionalData,
@@ -77,10 +79,10 @@ public class AeadAegis256Tests
     [Test]
     public async Task DecryptFailed()
     {
-        var actualPlaintext = new byte[AeadAegis256.GetPlaintextLength((ulong)ExpectedCiphertext.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertext.Length)];
         var tamperedCiphertext = ExpectedCiphertext.ToArray();
         tamperedCiphertext[0] = 0;
-        var actual = AeadAegis256.Decrypt(
+        var actual = Aegis256.Decrypt(
             actualPlaintext,
             tamperedCiphertext,
             null,
@@ -93,10 +95,10 @@ public class AeadAegis256Tests
     [Test]
     public async Task DecryptWithAdditionalDataFailed()
     {
-        var actualPlaintext = new byte[AeadAegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
         var tamperedCiphertext = ExpectedCiphertextWithAdditionalData.ToArray();
         tamperedCiphertext[0] = 0;
-        var actual = AeadAegis256.Decrypt(
+        var actual = Aegis256.Decrypt(
             actualPlaintext,
             tamperedCiphertext,
             AdditionalData,
@@ -109,10 +111,10 @@ public class AeadAegis256Tests
     [Test]
     public async Task DecryptWithTamperedAdditionalDataFailed()
     {
-        var actualPlaintext = new byte[AeadAegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
         var tamperedAdditionalData = AdditionalData.ToArray();
         tamperedAdditionalData[0] = 0;
-        var actual = AeadAegis256.Decrypt(
+        var actual = Aegis256.Decrypt(
             actualPlaintext,
             ExpectedCiphertextWithAdditionalData,
             tamperedAdditionalData,
@@ -124,12 +126,12 @@ public class AeadAegis256Tests
     [Test]
     public async Task DecryptWithTamperedAdditionalDataAddCiphertextFailed()
     {
-        var actualPlaintext = new byte[AeadAegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
         var tamperedCiphertext = ExpectedCiphertextWithAdditionalData.ToArray();
         tamperedCiphertext[0] = 0;
         var tamperedAdditionalData = AdditionalData.ToArray();
         tamperedAdditionalData[0] = 0;
-        var actual = AeadAegis256.Decrypt(
+        var actual = Aegis256.Decrypt(
             actualPlaintext,
             tamperedCiphertext,
             tamperedAdditionalData,

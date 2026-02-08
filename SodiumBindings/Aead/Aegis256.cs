@@ -1,6 +1,6 @@
-namespace SodiumBindings;
+namespace SodiumBindings.Aead;
 
-public static class AeadAegis256
+public static class Aegis256
 {
     public static ulong AdditionalBytes => crypto_aead_aegis256_abytes();
 
@@ -13,9 +13,19 @@ public static class AeadAegis256
         return plaintextLength + AdditionalBytes;
     }
 
+    public static int GetCiphertextLength(int plaintextLength)
+    {
+        return checked((int)GetCiphertextLength((ulong)plaintextLength));
+    }
+
     public static ulong GetPlaintextLength(ulong ciphertextLength)
     {
         return ciphertextLength - AdditionalBytes;
+    }
+
+    public static int GetPlaintextLength(int ciphertextLength)
+    {
+        return checked((int)GetPlaintextLength((ulong)ciphertextLength));
     }
 
     public static void Encrypt(

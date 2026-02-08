@@ -57,7 +57,7 @@ internal static class Validate
         var valueNumber = TExpectedNumber.CreateChecked(value);
         if (valueNumber < expected)
         {
-            throw new SodiumException($"Expected '{valueExpression}' = {value} to be '{expectedExpression}' = {expected}");
+            throw new SodiumException($"Expected '{valueExpression}' = {value} to be '{expectedExpression}' = {expected} or greater");
         }
     }
 }

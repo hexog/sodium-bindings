@@ -8,6 +8,26 @@ public static class SecretBox
 
     public static ulong MacBytes => crypto_secretbox_macbytes();
 
+    public static ulong GetCiphertextLength(ulong plaintextLength)
+    {
+        return MacBytes + plaintextLength;
+    }
+
+    public static int GetCiphertextLength(int plaintextLength)
+    {
+        return checked((int)GetCiphertextLength((ulong)plaintextLength));
+    }
+
+    public static ulong GetPlaintextLength(ulong ciphertextLength)
+    {
+        return ciphertextLength - MacBytes;
+    }
+
+    public static int GetPlaintextLength(int plaintextLength)
+    {
+        return checked((int)GetPlaintextLength((ulong)plaintextLength));
+    }
+
     public static void Encrypt(
         Span<byte> ciphertext,
         ReadOnlySpan<byte> plaintext,
@@ -16,9 +36,9 @@ public static class SecretBox
     )
     {
         Validate.Range(plaintext.Length, 0u, crypto_secretbox_messagebytes_max());
-        Validate.Equals(ciphertext.Length, MacBytes + (ulong)plaintext.Length);
-        Validate.Equals(nonce.Length, crypto_secretbox_noncebytes());
-        Validate.Equals(key.Length, crypto_secretbox_keybytes());
+        Validate.GreaterOrEqualTo(ciphertext.Length, GetCiphertextLength(plaintext.Length));
+        Validate.GreaterOrEqualTo(nonce.Length, crypto_secretbox_noncebytes());
+        Validate.GreaterOrEqualTo(key.Length, crypto_secretbox_keybytes());
 
         crypto_secretbox_easy(ciphertext, plaintext, (ulong)plaintext.Length, nonce, key).EnsureSuccess();
     }
@@ -31,9 +51,9 @@ public static class SecretBox
     )
     {
         Validate.Range(ciphertext.Length, 0u, crypto_secretbox_messagebytes_max() + MacBytes);
-        Validate.Equals(plaintext.Length, (ulong)ciphertext.Length - MacBytes);
-        Validate.Equals(nonce.Length, crypto_secretbox_noncebytes());
-        Validate.Equals(key.Length, crypto_secretbox_keybytes());
+        Validate.GreaterOrEqualTo(plaintext.Length, GetPlaintextLength(ciphertext.Length));
+        Validate.GreaterOrEqualTo(nonce.Length, crypto_secretbox_noncebytes());
+        Validate.GreaterOrEqualTo(key.Length, crypto_secretbox_keybytes());
 
         crypto_secretbox_open_easy(plaintext, ciphertext, (ulong)ciphertext.Length, nonce, key).EnsureSuccess();
     }

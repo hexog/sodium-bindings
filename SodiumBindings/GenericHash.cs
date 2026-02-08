@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace SodiumBindings;
 
 public static class GenericHash
@@ -29,31 +27,5 @@ public static class GenericHash
         var hash = new IncrementalGenericHash();
         hash.Initialize(key, outputLength);
         return hash;
-    }
-
-    public struct IncrementalGenericHash
-    {
-        private State state;
-
-        public void Initialize(ReadOnlySpan<byte> key, int outputLength)
-        {
-            crypto_generichash_init(state, key, (nuint)key.Length, (nuint)outputLength).EnsureSuccess();
-        }
-
-        public void Update(ReadOnlySpan<byte> input)
-        {
-            crypto_generichash_update(state, input, (nuint)input.Length).EnsureSuccess();
-        }
-
-        public void Final(Span<byte> output)
-        {
-            crypto_generichash_final(state, output, (nuint)output.Length);
-        }
-
-        [InlineArray((int)StateBytes)]
-        private struct State
-        {
-            public byte Element0;
-        }
     }
 }

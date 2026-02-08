@@ -14,7 +14,7 @@ public static class Signature
         ReadOnlySpan<byte> secretKey
     )
     {
-        Validate.Equals(secretKey.Length, crypto_sign_secretkeybytes());
+        Validate.GreaterOrEqualTo(secretKey.Length, crypto_sign_secretkeybytes());
 
         crypto_sign_detached(signature, out _, message, (ulong)message.Length, secretKey).EnsureSuccess();
     }
@@ -25,8 +25,8 @@ public static class Signature
         ReadOnlySpan<byte> publicKey
     )
     {
-        Validate.Equals(signature.Length, crypto_sign_bytes());
-        Validate.Equals(publicKey.Length, crypto_sign_publickeybytes());
+        Validate.GreaterOrEqualTo(signature.Length, crypto_sign_bytes());
+        Validate.GreaterOrEqualTo(publicKey.Length, crypto_sign_publickeybytes());
 
         var exitCode = crypto_sign_verify_detached(
             signature,

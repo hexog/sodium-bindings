@@ -1,5 +1,3 @@
-global using static SodiumBindings.Native.Sodium;
-
 [assembly: Retry(3)]
 [assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 
