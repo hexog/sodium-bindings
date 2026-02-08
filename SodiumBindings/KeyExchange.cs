@@ -42,8 +42,16 @@ public static class KeyExchange
         ReadOnlySpan<byte> serverPublicKey
     )
     {
-        Validate.GreaterOrEqualTo(receiveKey.Length, SessionKeyBytes);
-        Validate.GreaterOrEqualTo(transmitKey.Length, SessionKeyBytes);
+        if (!receiveKey.IsEmpty)
+        {
+            Validate.GreaterOrEqualTo(receiveKey.Length, SessionKeyBytes);
+        }
+
+        if (!transmitKey.IsEmpty)
+        {
+            Validate.GreaterOrEqualTo(transmitKey.Length, SessionKeyBytes);
+        }
+
         Validate.GreaterOrEqualTo(clientPublicKey.Length, PublicKeyBytes);
         Validate.GreaterOrEqualTo(clientSecretKey.Length, SecretKeyBytes);
         Validate.GreaterOrEqualTo(serverPublicKey.Length, PublicKeyBytes);
@@ -59,8 +67,16 @@ public static class KeyExchange
         ReadOnlySpan<byte> clientPublicKey
     )
     {
-        Validate.GreaterOrEqualTo(receiveKey.Length, SessionKeyBytes);
-        Validate.GreaterOrEqualTo(transmitKey.Length, SessionKeyBytes);
+        if (!receiveKey.IsEmpty)
+        {
+            Validate.GreaterOrEqualTo(receiveKey.Length, SessionKeyBytes);
+        }
+
+        if (!transmitKey.IsEmpty)
+        {
+            Validate.GreaterOrEqualTo(transmitKey.Length, SessionKeyBytes);
+        }
+
         Validate.GreaterOrEqualTo(serverPublicKey.Length, PublicKeyBytes);
         Validate.GreaterOrEqualTo(serverSecretKey.Length, SecretKeyBytes);
         Validate.GreaterOrEqualTo(clientPublicKey.Length, PublicKeyBytes);
