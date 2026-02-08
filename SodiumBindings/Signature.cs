@@ -10,6 +10,30 @@ public static class Signature
 
     public static ulong SeedBytes => crypto_sign_seedbytes();
 
+    public static void GenerateKeyPair(
+        Span<byte> publicKey,
+        Span<byte> secretKey
+    )
+    {
+        Validate.GreaterOrEqualTo(publicKey.Length, PublicKeyBytes);
+        Validate.GreaterOrEqualTo(secretKey.Length, SecretKeyBytes);
+
+        crypto_sign_keypair(publicKey, secretKey).EnsureSuccess();
+    }
+
+    public static void GenerateKeyPairFromSeed(
+        Span<byte> publicKey,
+        Span<byte> secretKey,
+        ReadOnlySpan<byte> seed
+    )
+    {
+        Validate.GreaterOrEqualTo(publicKey.Length, PublicKeyBytes);
+        Validate.GreaterOrEqualTo(secretKey.Length, SecretKeyBytes);
+        Validate.GreaterOrEqualTo(seed.Length, SeedBytes);
+
+        crypto_sign_seed_keypair(publicKey, secretKey, seed).EnsureSuccess();
+    }
+
     public static void SignDetached(
         Span<byte> signature,
         ReadOnlySpan<byte> message,

@@ -2,21 +2,41 @@ namespace SodiumBindings.Tests;
 
 public class SignatureTests
 {
+    private static readonly byte[] Seed = Convert.FromHexString("46400a287dd1a13e168f02739648976803ccd5fa58d2483275ff4a3946f664ec");
+
     private static readonly byte[] SecretKey =
         Convert.FromHexString(
-            "0fbd4e874817fc87d0be7ec737903469e49f737da1e48ef605d191250ee7a9e2149c09c619789ed4366628192eaba7737cb198fcdb71a42a13a944a10fd6c386");
+            "46400a287dd1a13e168f02739648976803ccd5fa58d2483275ff4a3946f664ecfe9f9d5c425c3f0d59b3e0b303db344b8a2b1e528e4fbaa9b42af3993ceaf607");
 
-    private static readonly byte[] PublicKey = Convert.FromHexString("149c09c619789ed4366628192eaba7737cb198fcdb71a42a13a944a10fd6c386");
+    private static readonly byte[] PublicKey = Convert.FromHexString("fe9f9d5c425c3f0d59b3e0b303db344b8a2b1e528e4fbaa9b42af3993ceaf607");
 
     private static readonly byte[] ExpectedSignature =
         Convert.FromHexString(
-            "fc23d3266634b776579b1a8accd10b2d969776df4d4d1e91506e2e45ce1f0213a42b9f76180540ebe6404684423e669029318da1fb0c83d7068743f842a8500a");
+            "c5831d455fddd1a86d8e468851ba1bc8efd114aeb2feddff9d25f7c163e922621defec0d026ed8b1011dd6878da3be7e8c4cc7cff7ada1009d17aa0a7962ed00");
 
     private static readonly byte[] ExpectedMultipartSignature =
         Convert.FromHexString(
-            "21daa41fb0b0d6a530cfef59a0f198f42530fbd0d86013aeb550809794e1c673a94fc69b08e8f00a06f3a531837c07d2c2f60994190d24518a48fc8ac971fa0c");
+            "c985282565b0d4cd2a9884bf45289d771e6be387f752f94e801b17b7f2c0caecb2e02e3761b549cc648a687cdd9f775852fc5a9703de9df91220b3a9f0323906");
 
     private static ReadOnlySpan<byte> Message => "Hello, world!"u8;
+
+    [Test]
+    public void GenerateKeyPair()
+    {
+        var publicKey = new byte[Signature.PublicKeyBytes];
+        var secretKey = new byte[Signature.SecretKeyBytes];
+        Signature.GenerateKeyPair(publicKey, secretKey);
+    }
+
+    [Test]
+    public async Task GenerateKeyPairFromSeed()
+    {
+        var publicKey = new byte[Signature.PublicKeyBytes];
+        var secretKey = new byte[Signature.SecretKeyBytes];
+        Signature.GenerateKeyPairFromSeed(publicKey, secretKey, Seed);
+        await Assert.That(publicKey.AsSpan().SequenceEqual(PublicKey)).IsTrue();
+        await Assert.That(secretKey.AsSpan().SequenceEqual(SecretKey)).IsTrue();
+    }
 
     [Test]
     public async Task Sign()
