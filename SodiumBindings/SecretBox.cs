@@ -43,7 +43,7 @@ public static class SecretBox
         crypto_secretbox_easy(ciphertext, plaintext, (ulong)plaintext.Length, nonce, key).EnsureSuccess();
     }
 
-    public static void Decrypt(
+    public static bool Decrypt(
         Span<byte> plaintext,
         ReadOnlySpan<byte> ciphertext,
         ReadOnlySpan<byte> nonce,
@@ -55,6 +55,7 @@ public static class SecretBox
         Validate.GreaterOrEqualTo(nonce.Length, crypto_secretbox_noncebytes());
         Validate.GreaterOrEqualTo(key.Length, crypto_secretbox_keybytes());
 
-        crypto_secretbox_open_easy(plaintext, ciphertext, (ulong)ciphertext.Length, nonce, key).EnsureSuccess();
+        var exitCode = crypto_secretbox_open_easy(plaintext, ciphertext, (ulong)ciphertext.Length, nonce, key);
+        return exitCode == 0;
     }
 }
