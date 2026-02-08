@@ -26,6 +26,8 @@ public static class PasswordHash
 
     public static ulong MemoryLimitSensitive => crypto_pwhash_memlimit_sensitive();
 
+    public static ulong SaltBytes => crypto_pwhash_saltbytes();
+
     public static ulong StringBytes => crypto_pwhash_strbytes();
 
     public static void Hash(
