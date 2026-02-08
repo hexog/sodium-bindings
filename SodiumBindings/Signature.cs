@@ -8,7 +8,9 @@ public static class Signature
 
     public static ulong SignatureBytes => crypto_sign_bytes();
 
-    public static void Sign(
+    public static ulong SeedBytes => crypto_sign_seedbytes();
+
+    public static void SignDetached(
         Span<byte> signature,
         ReadOnlySpan<byte> message,
         ReadOnlySpan<byte> secretKey
@@ -19,7 +21,7 @@ public static class Signature
         crypto_sign_detached(signature, out _, message, (ulong)message.Length, secretKey).EnsureSuccess();
     }
 
-    public static bool Verify(
+    public static bool VerifyDetached(
         ReadOnlySpan<byte> signature,
         ReadOnlySpan<byte> message,
         ReadOnlySpan<byte> publicKey

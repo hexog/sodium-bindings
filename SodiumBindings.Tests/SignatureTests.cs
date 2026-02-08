@@ -18,14 +18,14 @@ public class SignatureTests
     public async Task Sign()
     {
         var actualSignature = new byte[Signature.SignatureBytes];
-        Signature.Sign(actualSignature, Message, SecretKey);
+        Signature.SignDetached(actualSignature, Message, SecretKey);
         await Assert.That(actualSignature.AsSpan().SequenceEqual(ExpectedSignature)).IsTrue();
     }
 
     [Test]
     public async Task Verify()
     {
-        var actual = Signature.Verify(ExpectedSignature, Message, PublicKey);
+        var actual = Signature.VerifyDetached(ExpectedSignature, Message, PublicKey);
         await Assert.That(actual).IsTrue();
     }
 }
