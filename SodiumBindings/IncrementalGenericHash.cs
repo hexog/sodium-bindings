@@ -18,12 +18,11 @@ public sealed class IncrementalGenericHash : IDisposable
 
     public void Final(Span<byte> output)
     {
-        crypto_generichash_final(state, output, (nuint)output.Length);
+        crypto_generichash_final(state, output, (nuint)output.Length).EnsureSuccess();
     }
 
     public void Dispose()
     {
         CryptographicOperations.ZeroMemory(state);
-        GC.SuppressFinalize(this);
     }
 }
