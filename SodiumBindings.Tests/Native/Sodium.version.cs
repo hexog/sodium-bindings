@@ -5,7 +5,7 @@ public partial class Sodium
     [Test]
     public async Task SodiumVersionString()
     {
-        await Assert.That(sodium_version_string()).IsEqualTo("1.0.21");
+        await Assert.That(sodium_version_string()).IsEqualTo("1.0.22");
     }
 
     [Test]
@@ -17,7 +17,7 @@ public partial class Sodium
     [Test]
     public async Task SodiumLibraryVersionMinor()
     {
-        await Assert.That(sodium_library_version_minor()).IsEqualTo(3);
+        await Assert.That(sodium_library_version_minor()).IsEqualTo(4);
     }
 
     [Test]
