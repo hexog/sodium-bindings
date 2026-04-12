@@ -34,6 +34,30 @@ public static class Signature
         crypto_sign_seed_keypair(publicKey, secretKey, seed).EnsureSuccess();
     }
 
+    public static ulong Sign(
+        Span<byte> signedMessage,
+        ReadOnlySpan<byte> message,
+        ReadOnlySpan<byte> secretKey
+    )
+    {
+        Validate.GreaterOrEqualTo(secretKey.Length, crypto_sign_secretkeybytes());
+        Validate.GreaterOrEqualTo(signedMessage.Length, SignatureBytes + (ulong)message.Length);
+
+        crypto_sign(signedMessage, out var signatureLength, message, (ulong)message.Length, secretKey).EnsureSuccess();
+        return signatureLength;
+    }
+
+    public static bool Verify(
+        Span<byte> message,
+        ReadOnlySpan<byte> signedMessage,
+        ReadOnlySpan<byte> publicKey,
+        out ulong messageLength
+    )
+    {
+        var exitCode = crypto_sign_open(message, out messageLength, signedMessage, (ulong)signedMessage.Length, publicKey);
+        return exitCode == 0;
+    }
+
     public static ulong SignDetached(
         Span<byte> signature,
         ReadOnlySpan<byte> message,

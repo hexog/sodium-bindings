@@ -10,6 +10,10 @@ public class SignatureTests
 
     private static readonly byte[] PublicKey = Convert.FromHexString("fe9f9d5c425c3f0d59b3e0b303db344b8a2b1e528e4fbaa9b42af3993ceaf607");
 
+    private static readonly byte[] ExpectedSignedMessage =
+        Convert.FromHexString(
+            "c5831d455fddd1a86d8e468851ba1bc8efd114aeb2feddff9d25f7c163e922621defec0d026ed8b1011dd6878da3be7e8c4cc7cff7ada1009d17aa0a7962ed0048656c6c6f2c20776f726c6421");
+
     private static readonly byte[] ExpectedSignature =
         Convert.FromHexString(
             "c5831d455fddd1a86d8e468851ba1bc8efd114aeb2feddff9d25f7c163e922621defec0d026ed8b1011dd6878da3be7e8c4cc7cff7ada1009d17aa0a7962ed00");
@@ -41,6 +45,15 @@ public class SignatureTests
     [Test]
     public async Task Sign()
     {
+        var signedMessage = new byte[(ulong)Message.Length + Signature.SignatureBytes];
+        var signatureLength = Signature.Sign(signedMessage, Message, SecretKey);
+        await Assert.That(signedMessage.AsSpan().SequenceEqual(ExpectedSignedMessage)).IsTrue();
+        await Assert.That(signatureLength).IsGreaterThan((ulong)Message.Length);
+    }
+
+    [Test]
+    public async Task SignDetached()
+    {
         var actualSignature = new byte[Signature.SignatureBytes];
         var signatureLength = Signature.SignDetached(actualSignature, Message, SecretKey);
         await Assert.That(actualSignature.AsSpan().SequenceEqual(ExpectedSignature)).IsTrue();
@@ -60,6 +73,16 @@ public class SignatureTests
 
     [Test]
     public async Task Verify()
+    {
+        var message = new byte[Message.Length];
+        var actual = Signature.Verify(message, ExpectedSignedMessage, PublicKey, out var messageLength);
+        await Assert.That(actual).IsTrue();
+        await Assert.That(messageLength).IsEqualTo((ulong)Message.Length);
+        await Assert.That(message.AsSpan().SequenceEqual(Message)).IsTrue();
+    }
+
+    [Test]
+    public async Task VerifyDetached()
     {
         var actual = Signature.VerifyDetached(ExpectedSignature, Message, PublicKey);
         await Assert.That(actual).IsTrue();
