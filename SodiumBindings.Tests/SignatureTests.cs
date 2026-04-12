@@ -42,8 +42,9 @@ public class SignatureTests
     public async Task Sign()
     {
         var actualSignature = new byte[Signature.SignatureBytes];
-        Signature.SignDetached(actualSignature, Message, SecretKey);
+        var signatureLength = Signature.SignDetached(actualSignature, Message, SecretKey);
         await Assert.That(actualSignature.AsSpan().SequenceEqual(ExpectedSignature)).IsTrue();
+        await Assert.That(signatureLength).IsEqualTo(Signature.SignatureBytes);
     }
 
     [Test]

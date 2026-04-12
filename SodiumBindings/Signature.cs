@@ -34,7 +34,7 @@ public static class Signature
         crypto_sign_seed_keypair(publicKey, secretKey, seed).EnsureSuccess();
     }
 
-    public static void SignDetached(
+    public static ulong SignDetached(
         Span<byte> signature,
         ReadOnlySpan<byte> message,
         ReadOnlySpan<byte> secretKey
@@ -42,7 +42,8 @@ public static class Signature
     {
         Validate.GreaterOrEqualTo(secretKey.Length, crypto_sign_secretkeybytes());
 
-        crypto_sign_detached(signature, out _, message, (ulong)message.Length, secretKey).EnsureSuccess();
+        crypto_sign_detached(signature, out var signatureLength, message, (ulong)message.Length, secretKey).EnsureSuccess();
+        return signatureLength;
     }
 
     public static bool VerifyDetached(
