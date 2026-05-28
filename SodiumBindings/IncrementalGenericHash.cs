@@ -6,19 +6,27 @@ public sealed class IncrementalGenericHash : IDisposable
 {
     private readonly byte[] state = new byte[crypto_generichash_statebytes()];
 
-    public void Initialize(ReadOnlySpan<byte> key, int outputLength)
+    internal IncrementalGenericHash()
     {
-        crypto_generichash_init(state, key, (nuint)key.Length, (nuint)outputLength).EnsureSuccess();
+    }
+
+    public void Initialize(int outputLength, ReadOnlySpan<byte> key = default)
+    {
+        var keylen = (nuint)key.Length;
+        var outlen = (nuint)outputLength;
+        crypto_generichash_init(state, key, keylen, outlen).EnsureSuccess();
     }
 
     public void Update(ReadOnlySpan<byte> input)
     {
-        crypto_generichash_update(state, input, (nuint)input.Length).EnsureSuccess();
+        var inlen = (nuint)input.Length;
+        crypto_generichash_update(state, input, inlen).EnsureSuccess();
     }
 
     public void Final(Span<byte> output)
     {
-        crypto_generichash_final(state, output, (nuint)output.Length).EnsureSuccess();
+        var outlen = (nuint)output.Length;
+        crypto_generichash_final(state, output, outlen).EnsureSuccess();
     }
 
     public void Dispose()

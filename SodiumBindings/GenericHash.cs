@@ -2,7 +2,13 @@ namespace SodiumBindings;
 
 public static class GenericHash
 {
-    internal const uint StateBytes = 384;
+    public static int BytesMin { get; } = (int)crypto_generichash_bytes_min();
+
+    public static int BytesMax { get; } = (int)crypto_generichash_bytes_max();
+
+    public static int KeyBytesMin { get; } = (int)crypto_generichash_keybytes_min();
+
+    public static int KeyBytesMax { get; } = (int)crypto_generichash_keybytes_max();
 
     public static void Hash(
         Span<byte> output,
@@ -10,13 +16,16 @@ public static class GenericHash
         ReadOnlySpan<byte> key = default
     )
     {
-        Validate.Range(output.Length, crypto_generichash_bytes_min(), crypto_generichash_bytes_max());
+        Validate.Range(output.Length, BytesMin, BytesMax);
         if (!key.IsEmpty)
         {
-            Validate.Range(key.Length, crypto_generichash_keybytes_min(), crypto_generichash_keybytes_max());
+            Validate.Range(key.Length, KeyBytesMin, KeyBytesMax);
         }
 
-        crypto_generichash(output, (nuint)output.Length, input, (ulong)input.Length, key, (nuint)key.Length).EnsureSuccess();
+        var outputLength = (nuint)output.Length;
+        var inputLength = (ulong)input.Length;
+        var keyLength = (nuint)key.Length;
+        crypto_generichash(output, outputLength, input, inputLength, key, keyLength).EnsureSuccess();
     }
 
     public static IncrementalGenericHash Create(
@@ -25,7 +34,7 @@ public static class GenericHash
     )
     {
         var hash = new IncrementalGenericHash();
-        hash.Initialize(key, outputLength);
+        hash.Initialize(outputLength, key);
         return hash;
     }
 }

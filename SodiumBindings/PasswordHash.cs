@@ -14,48 +14,68 @@ public static class PasswordHash
         }
     }
 
-    public static ulong OperationsLimitInteractive => crypto_pwhash_opslimit_interactive();
+    public static long OperationsLimitMin { get; } = (long)crypto_pwhash_opslimit_min();
 
-    public static ulong OperationsLimitModerate => crypto_pwhash_opslimit_moderate();
+    public static long OperationsLimitInteractive { get; } = (long)crypto_pwhash_opslimit_interactive();
 
-    public static ulong OperationsLimitSensitive => crypto_pwhash_opslimit_sensitive();
+    public static long OperationsLimitModerate { get; } = (long)crypto_pwhash_opslimit_moderate();
 
-    public static ulong MemoryLimitInteractive => crypto_pwhash_memlimit_interactive();
+    public static long OperationsLimitSensitive { get; } = (long)crypto_pwhash_opslimit_sensitive();
 
-    public static ulong MemoryLimitModerate => crypto_pwhash_memlimit_moderate();
+    public static long OperationsLimitMax { get; } = (long)crypto_pwhash_opslimit_max();
 
-    public static ulong MemoryLimitSensitive => crypto_pwhash_memlimit_sensitive();
+    public static long MemoryLimitMin { get; } = (long)crypto_pwhash_memlimit_min();
 
-    public static ulong SaltBytes => crypto_pwhash_saltbytes();
+    public static long MemoryLimitInteractive { get; } = (long)crypto_pwhash_memlimit_interactive();
 
-    public static ulong StringBytes => crypto_pwhash_strbytes();
+    public static long MemoryLimitModerate { get; } = (long)crypto_pwhash_memlimit_moderate();
+
+    public static long MemoryLimitSensitive { get; } = (long)crypto_pwhash_memlimit_sensitive();
+
+    public static long MemoryLimitMax { get; } = (long)crypto_pwhash_memlimit_max();
+
+    public static int SaltBytes { get; } = (int)crypto_pwhash_saltbytes();
+
+    public static int StringBytes { get; } = (int)crypto_pwhash_strbytes();
+
+    public static int PasswordMin { get; } = (int)crypto_pwhash_passwd_min();
+
+    public static int BytesMin { get; } = (int)crypto_pwhash_bytes_min();
 
     public static void Hash(
         Span<byte> output,
         ReadOnlySpan<byte> password,
         ReadOnlySpan<byte> salt,
-        ulong operationsLimit,
-        ulong memoryLimit,
+        long operationsLimit,
+        long memoryLimit,
         PasswordHashAlgorithm algorithm
     )
     {
-        Validate.Range(output.Length, crypto_pwhash_bytes_min(), crypto_pwhash_bytes_max());
-        Validate.Range(password.Length, crypto_pwhash_passwd_min(), crypto_pwhash_passwd_max());
-        Validate.GreaterOrEqualTo(salt.Length, crypto_pwhash_saltbytes());
-        Validate.Range(operationsLimit, crypto_pwhash_opslimit_min(), crypto_pwhash_opslimit_max());
-        Validate.Range(memoryLimit, crypto_pwhash_memlimit_min(), crypto_pwhash_memlimit_max());
+        Validate.GreaterOrEqualTo(output.Length, BytesMin);
+        Validate.GreaterOrEqualTo(password.Length, PasswordMin);
+        Validate.GreaterOrEqualTo(salt.Length, SaltBytes);
+        Validate.Range(operationsLimit, OperationsLimitMin, OperationsLimitMax);
+        Validate.Range(memoryLimit, OperationsLimitMin, MemoryLimitMax);
 
-        crypto_pwhash(output, (nuint)output.Length, password, (nuint)password.Length, salt, operationsLimit, (nuint)memoryLimit, (int)algorithm).EnsureSuccess();
+        var outputLen = (nuint)output.Length;
+        var passwordLen = (nuint)password.Length;
+        var opsLimit = (ulong)operationsLimit;
+        var memLimit = (nuint)memoryLimit;
+        var alg = (int)algorithm;
+        crypto_pwhash(output, outputLen, password, passwordLen, salt, opsLimit, memLimit, alg).EnsureSuccess();
     }
 
-    public static void HashToString(Span<byte> output, ReadOnlySpan<byte> password, ulong operationsLimit, ulong memoryLimit)
+    public static void HashToString(Span<byte> output, ReadOnlySpan<byte> password, long operationsLimit, long memoryLimit)
     {
-        Validate.GreaterOrEqualTo(output.Length, crypto_pwhash_strbytes());
-        Validate.Range(password.Length, crypto_pwhash_passwd_min(), crypto_pwhash_passwd_max());
-        Validate.Range(operationsLimit, crypto_pwhash_opslimit_min(), crypto_pwhash_opslimit_max());
-        Validate.Range(memoryLimit, crypto_pwhash_memlimit_min(), crypto_pwhash_memlimit_max());
+        Validate.GreaterOrEqualTo(output.Length, StringBytes);
+        Validate.GreaterOrEqualTo(password.Length, PasswordMin);
+        Validate.Range(operationsLimit, OperationsLimitMin, OperationsLimitMax);
+        Validate.Range(memoryLimit, OperationsLimitMin, MemoryLimitMax);
 
-        crypto_pwhash_str(output, password, (nuint)password.Length, operationsLimit, (nuint)memoryLimit).EnsureSuccess();
+        var passwordLen = (nuint)password.Length;
+        var opsLimit = (ulong)operationsLimit;
+        var memLimit = (nuint)memoryLimit;
+        crypto_pwhash_str(output, password, passwordLen, opsLimit, memLimit).EnsureSuccess();
     }
 
     public static bool VerifyString(
@@ -63,8 +83,8 @@ public static class PasswordHash
         ReadOnlySpan<byte> password
     )
     {
-        Validate.GreaterOrEqualTo(str.Length, crypto_pwhash_strbytes());
-        Validate.Range(password.Length, crypto_pwhash_passwd_min(), crypto_pwhash_passwd_max());
+        Validate.GreaterOrEqualTo(str.Length, StringBytes);
+        Validate.GreaterOrEqualTo(password.Length, PasswordMin);
 
         var exitCode = crypto_pwhash_str_verify(str, password, (nuint)password.Length);
         return exitCode == 0;

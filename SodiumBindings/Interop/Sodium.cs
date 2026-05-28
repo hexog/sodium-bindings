@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace SodiumBindings.Native;
+namespace SodiumBindings.Interop;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static partial class Sodium

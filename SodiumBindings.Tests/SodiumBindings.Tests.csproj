@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="SodiumBindings.Native.Sodium" Static="true" />
+    <Using Include="SodiumBindings.Interop.Sodium" Static="True" />
   </ItemGroup>
 
 </Project>

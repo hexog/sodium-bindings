@@ -43,7 +43,7 @@ public class KeyDerivationTests
     {
         var actualKey = new byte[32];
         KeyDerivation.HmacDerive(actualKey, "7e6e8059-ecc9-4272-90de-6c3d79aade7c"u8, ExpectedKey);
-        var expectedKey = Convert.FromHexString("af4a04716f5fbe636cd500fbbe32dce6620a7dddfa5ae32e4211e84199a5e624");
+        var expectedKey = Convert.FromHexString("6f981fc082f2c7e438aacec1f7e0f30eccd782428907001e4af3c889b60f9684");
         await Assert.That(actualKey.AsSpan().SequenceEqual(expectedKey)).IsTrue();
     }
 }

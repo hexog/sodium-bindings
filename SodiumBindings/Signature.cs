@@ -2,13 +2,13 @@ namespace SodiumBindings;
 
 public static class Signature
 {
-    public static ulong PublicKeyBytes => crypto_sign_publickeybytes();
+    public static int PublicKeyBytes { get; } = (int)crypto_sign_publickeybytes();
 
-    public static ulong SecretKeyBytes => crypto_sign_secretkeybytes();
+    public static int SecretKeyBytes { get; } = (int)crypto_sign_secretkeybytes();
 
-    public static ulong SignatureBytes => crypto_sign_bytes();
+    public static int SignatureBytes { get; } = (int)crypto_sign_bytes();
 
-    public static ulong SeedBytes => crypto_sign_seedbytes();
+    public static int SeedBytes { get; } = (int)crypto_sign_seedbytes();
 
     public static void GenerateKeyPair(
         Span<byte> publicKey,
@@ -34,40 +34,46 @@ public static class Signature
         crypto_sign_seed_keypair(publicKey, secretKey, seed).EnsureSuccess();
     }
 
-    public static ulong Sign(
+    public static void Sign(
         Span<byte> signedMessage,
         ReadOnlySpan<byte> message,
-        ReadOnlySpan<byte> secretKey
+        ReadOnlySpan<byte> secretKey,
+        out int signedMessageLength
     )
     {
-        Validate.GreaterOrEqualTo(secretKey.Length, crypto_sign_secretkeybytes());
-        Validate.GreaterOrEqualTo(signedMessage.Length, SignatureBytes + (ulong)message.Length);
+        Validate.GreaterOrEqualTo(secretKey.Length, SecretKeyBytes);
+        Validate.GreaterOrEqualTo(signedMessage.Length, SignatureBytes + message.Length);
 
-        crypto_sign(signedMessage, out var signatureLength, message, (ulong)message.Length, secretKey).EnsureSuccess();
-        return signatureLength;
+        var mlen = (ulong)message.Length;
+        crypto_sign(signedMessage, out var smlen, message, mlen, secretKey).EnsureSuccess();
+        signedMessageLength = (int)smlen;
     }
 
     public static bool Verify(
         Span<byte> message,
         ReadOnlySpan<byte> signedMessage,
         ReadOnlySpan<byte> publicKey,
-        out ulong messageLength
+        out int messageLength
     )
     {
-        var exitCode = crypto_sign_open(message, out messageLength, signedMessage, (ulong)signedMessage.Length, publicKey);
+        var smlen = (ulong)signedMessage.Length;
+        var exitCode = crypto_sign_open(message, out var mlen, signedMessage, smlen, publicKey);
+        messageLength = (int)mlen;
         return exitCode == 0;
     }
 
-    public static ulong SignDetached(
+    public static void SignDetached(
         Span<byte> signature,
         ReadOnlySpan<byte> message,
-        ReadOnlySpan<byte> secretKey
+        ReadOnlySpan<byte> secretKey,
+        out int signatureLength
     )
     {
-        Validate.GreaterOrEqualTo(secretKey.Length, crypto_sign_secretkeybytes());
+        Validate.GreaterOrEqualTo(secretKey.Length, SecretKeyBytes);
 
-        crypto_sign_detached(signature, out var signatureLength, message, (ulong)message.Length, secretKey).EnsureSuccess();
-        return signatureLength;
+        var mlen = (ulong)message.Length;
+        crypto_sign_detached(signature, out var sigLen, message, mlen, secretKey).EnsureSuccess();
+        signatureLength = (int)sigLen;
     }
 
     public static bool VerifyDetached(
@@ -76,15 +82,11 @@ public static class Signature
         ReadOnlySpan<byte> publicKey
     )
     {
-        Validate.GreaterOrEqualTo(signature.Length, crypto_sign_bytes());
-        Validate.GreaterOrEqualTo(publicKey.Length, crypto_sign_publickeybytes());
+        Validate.GreaterOrEqualTo(signature.Length, SignatureBytes);
+        Validate.GreaterOrEqualTo(publicKey.Length, PublicKeyBytes);
 
-        var exitCode = crypto_sign_verify_detached(
-            signature,
-            message, (ulong)message.Length,
-            publicKey
-        );
-
+        var mlen = (ulong)message.Length;
+        var exitCode = crypto_sign_verify_detached(signature, message, mlen, publicKey);
         return exitCode == 0;
     }
 

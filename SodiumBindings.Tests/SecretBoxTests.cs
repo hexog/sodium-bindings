@@ -11,7 +11,7 @@ public class SecretBoxTests
     [Test]
     public async Task Encrypt()
     {
-        var actualCiphertext = new byte[(ulong)Message.Length + SecretBox.MacBytes];
+        var actualCiphertext = new byte[Message.Length + SecretBox.MacBytes];
         SecretBox.Encrypt(actualCiphertext, Message, Nonce, Key);
         await Assert.That(actualCiphertext.AsSpan().SequenceEqual(ExpectedCiphertext)).IsTrue();
     }
@@ -19,7 +19,7 @@ public class SecretBoxTests
     [Test]
     public async Task Decrypt()
     {
-        var actualPlaintext = new byte[(ulong)ExpectedCiphertext.Length - SecretBox.MacBytes];
+        var actualPlaintext = new byte[ExpectedCiphertext.Length - SecretBox.MacBytes];
         SecretBox.Decrypt(actualPlaintext, ExpectedCiphertext, Nonce, Key);
         await Assert.That(actualPlaintext.AsSpan().SequenceEqual(Message)).IsTrue();
     }

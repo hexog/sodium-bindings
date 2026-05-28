@@ -4,11 +4,19 @@ namespace SodiumBindings;
 
 public static class KeyDerivation
 {
-    internal const uint StateBytes = 208;
+    public static int KeyBytes { get; } = (int)crypto_kdf_keybytes();
 
-    public static ulong KeyBytes => crypto_kdf_keybytes();
+    public static int SubkeyBytesMin { get; } = (int)crypto_kdf_bytes_min();
 
-    public static ulong HmacKeyBytes => crypto_kdf_hkdf_sha256_keybytes();
+    public static int SubkeyBytesMax { get; } = (int)crypto_kdf_bytes_max();
+
+    public static int HmacKeyBytes { get; } = (int)crypto_kdf_hkdf_sha256_keybytes();
+
+    public static int HmacSubkeyBytesMin { get; } = (int)crypto_kdf_hkdf_sha256_bytes_min();
+
+    public static int HmacSubkeyBytesMax { get; } = (int)crypto_kdf_hkdf_sha256_bytes_max();
+
+    public static int ContextBytes { get; } = (int)crypto_kdf_contextbytes();
 
     public static void Derive(
         Span<byte> subkey,
@@ -17,11 +25,12 @@ public static class KeyDerivation
         ReadOnlySpan<byte> key
     )
     {
-        Validate.Range(subkey.Length, crypto_kdf_bytes_min(), crypto_kdf_bytes_max());
-        Validate.GreaterOrEqualTo(context.Length, crypto_kdf_contextbytes());
-        Validate.GreaterOrEqualTo(key.Length, crypto_kdf_keybytes());
+        Validate.Range(subkey.Length, SubkeyBytesMin, SubkeyBytesMax);
+        Validate.GreaterOrEqualTo(context.Length, ContextBytes);
+        Validate.GreaterOrEqualTo(key.Length, KeyBytes);
 
-        crypto_kdf_derive_from_key(subkey, (nuint)subkey.Length, subkeyId, context, key).EnsureSuccess();
+        var subkeyLen = (nuint)subkey.Length;
+        crypto_kdf_derive_from_key(subkey, subkeyLen, subkeyId, context, key).EnsureSuccess();
     }
 
     public static void HmacDerive(
@@ -30,10 +39,12 @@ public static class KeyDerivation
         ReadOnlySpan<byte> key
     )
     {
-        Validate.Range(subkey.Length, crypto_kdf_hkdf_sha256_bytes_min(), crypto_kdf_hkdf_sha256_bytes_max());
-        Validate.GreaterOrEqualTo(key.Length, crypto_kdf_hkdf_sha256_keybytes());
+        Validate.Range(subkey.Length, HmacSubkeyBytesMin, HmacSubkeyBytesMax);
+        Validate.GreaterOrEqualTo(key.Length, HmacKeyBytes);
 
-        crypto_kdf_hkdf_sha256_expand(subkey, (nuint)subkey.Length, context, (nuint)subkey.Length, key).EnsureSuccess();
+        var subkeyLen = (nuint)subkey.Length;
+        var contextLen = (nuint)context.Length;
+        crypto_kdf_hkdf_sha256_expand(subkey, subkeyLen, context, contextLen, key).EnsureSuccess();
     }
 
     public static void Extract(
@@ -42,14 +53,16 @@ public static class KeyDerivation
         ReadOnlySpan<byte> inputKeyingMaterial
     )
     {
-        Validate.GreaterOrEqualTo(key.Length, crypto_kdf_hkdf_sha256_keybytes());
+        Validate.GreaterOrEqualTo(key.Length, HmacKeyBytes);
 
-        crypto_kdf_hkdf_sha256_extract(key, salt, (nuint)salt.Length, inputKeyingMaterial, (nuint)inputKeyingMaterial.Length).EnsureSuccess();
+        var saltLen = (nuint)salt.Length;
+        var ikmLen = (nuint)inputKeyingMaterial.Length;
+        crypto_kdf_hkdf_sha256_extract(key, salt, saltLen, inputKeyingMaterial, ikmLen).EnsureSuccess();
     }
 
-    public static PseudorandomKeyExtractor CreateExtractor(ReadOnlySpan<byte> salt)
+    public static IncrementalKeyExtractor CreateExtractor(ReadOnlySpan<byte> salt)
     {
-        var extractor = new PseudorandomKeyExtractor();
+        var extractor = new IncrementalKeyExtractor();
         extractor.Initialize(salt);
         return extractor;
     }

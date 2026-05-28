@@ -6,6 +6,10 @@ public sealed class IncrementalSignature : IDisposable
 {
     private readonly byte[] state = new byte[crypto_sign_statebytes()];
 
+    internal IncrementalSignature()
+    {
+    }
+
     public void Initialize()
     {
         crypto_sign_init(state).EnsureSuccess();
@@ -13,16 +17,17 @@ public sealed class IncrementalSignature : IDisposable
 
     public void Update(ReadOnlySpan<byte> data)
     {
-        crypto_sign_update(state, data, (ulong)data.Length).EnsureSuccess();
+        var dlen = (ulong)data.Length;
+        crypto_sign_update(state, data, dlen).EnsureSuccess();
     }
 
-    public ulong Create(Span<byte> signature, ReadOnlySpan<byte> secretKey)
+    public void Create(Span<byte> signature, ReadOnlySpan<byte> secretKey, out int signatureLength)
     {
         Validate.GreaterOrEqualTo(signature.Length, Signature.SignatureBytes);
         Validate.GreaterOrEqualTo(secretKey.Length, Signature.SecretKeyBytes);
 
-        crypto_sign_final_create(state, signature, out var signatureLength, secretKey).EnsureSuccess();
-        return signatureLength;
+        crypto_sign_final_create(state, signature, out var siglen, secretKey).EnsureSuccess();
+        signatureLength = (int)siglen;
     }
 
     public bool Verify(ReadOnlySpan<byte> signature, ReadOnlySpan<byte> publicKey)

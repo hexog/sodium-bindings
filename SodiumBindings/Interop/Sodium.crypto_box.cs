@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace SodiumBindings.Native;
+namespace SodiumBindings.Interop;
 
 internal static partial class Sodium
 {

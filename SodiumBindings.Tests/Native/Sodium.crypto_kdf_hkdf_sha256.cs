@@ -23,6 +23,6 @@ public partial class Sodium
     [Test]
     public async Task CryptoKdfHkdfSha256Statebytes()
     {
-        await Assert.That(crypto_kdf_hkdf_sha256_statebytes()).IsEqualTo(KeyDerivation.StateBytes);
+        await Assert.That(crypto_kdf_hkdf_sha256_statebytes()).IsEqualTo((uint)208);
     }
 }

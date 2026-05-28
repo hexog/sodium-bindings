@@ -2,30 +2,20 @@ namespace SodiumBindings;
 
 public static class SecretBox
 {
-    public static ulong NonceBytes => crypto_secretbox_noncebytes();
+    public static int NonceBytes { get; } = (int)crypto_secretbox_noncebytes();
 
-    public static ulong KeyBytes => crypto_secretbox_keybytes();
+    public static int KeyBytes { get; } = (int)crypto_secretbox_keybytes();
 
-    public static ulong MacBytes => crypto_secretbox_macbytes();
+    public static int MacBytes { get; } = (int)crypto_secretbox_macbytes();
 
-    public static ulong GetCiphertextLength(ulong plaintextLength)
+    public static int GetCiphertextLength(int plaintextLength)
     {
         return MacBytes + plaintextLength;
     }
 
-    public static int GetCiphertextLength(int plaintextLength)
-    {
-        return checked((int)GetCiphertextLength((ulong)plaintextLength));
-    }
-
-    public static ulong GetPlaintextLength(ulong ciphertextLength)
+    public static int GetPlaintextLength(int ciphertextLength)
     {
         return ciphertextLength - MacBytes;
-    }
-
-    public static int GetPlaintextLength(int plaintextLength)
-    {
-        return checked((int)GetPlaintextLength((ulong)plaintextLength));
     }
 
     public static void Encrypt(
@@ -35,12 +25,12 @@ public static class SecretBox
         ReadOnlySpan<byte> key
     )
     {
-        Validate.Range(plaintext.Length, 0u, crypto_secretbox_messagebytes_max());
         Validate.GreaterOrEqualTo(ciphertext.Length, GetCiphertextLength(plaintext.Length));
-        Validate.GreaterOrEqualTo(nonce.Length, crypto_secretbox_noncebytes());
-        Validate.GreaterOrEqualTo(key.Length, crypto_secretbox_keybytes());
+        Validate.GreaterOrEqualTo(nonce.Length, NonceBytes);
+        Validate.GreaterOrEqualTo(key.Length, KeyBytes);
 
-        crypto_secretbox_easy(ciphertext, plaintext, (ulong)plaintext.Length, nonce, key).EnsureSuccess();
+        var plaintextLength = (ulong)plaintext.Length;
+        crypto_secretbox_easy(ciphertext, plaintext, plaintextLength, nonce, key).EnsureSuccess();
     }
 
     public static bool Decrypt(
@@ -50,12 +40,12 @@ public static class SecretBox
         ReadOnlySpan<byte> key
     )
     {
-        Validate.Range(ciphertext.Length, 0u, crypto_secretbox_messagebytes_max() + MacBytes);
         Validate.GreaterOrEqualTo(plaintext.Length, GetPlaintextLength(ciphertext.Length));
-        Validate.GreaterOrEqualTo(nonce.Length, crypto_secretbox_noncebytes());
-        Validate.GreaterOrEqualTo(key.Length, crypto_secretbox_keybytes());
+        Validate.GreaterOrEqualTo(nonce.Length, NonceBytes);
+        Validate.GreaterOrEqualTo(key.Length, KeyBytes);
 
-        var exitCode = crypto_secretbox_open_easy(plaintext, ciphertext, (ulong)ciphertext.Length, nonce, key);
+        var ciphertextLength = (ulong)ciphertext.Length;
+        var exitCode = crypto_secretbox_open_easy(plaintext, ciphertext, ciphertextLength, nonce, key);
         return exitCode == 0;
     }
 }

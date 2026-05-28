@@ -21,12 +21,13 @@ public class Aegis256Tests
     [Test]
     public async Task Encrypt()
     {
-        var actualCiphertext = new byte[Aegis256.GetCiphertextLength((ulong)Message.Length)];
+        var actualCiphertext = new byte[Aegis256.GetCiphertextLength(Message.Length)];
         Aegis256.Encrypt(
             actualCiphertext,
             Message,
             null,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actualCiphertext.AsSpan().SequenceEqual(ExpectedCiphertext)).IsTrue();
@@ -35,12 +36,13 @@ public class Aegis256Tests
     [Test]
     public async Task EncryptWithAdditionalData()
     {
-        var actualCiphertext = new byte[Aegis256.GetCiphertextLength((ulong)Message.Length)];
+        var actualCiphertext = new byte[Aegis256.GetCiphertextLength(Message.Length)];
         Aegis256.Encrypt(
             actualCiphertext,
             Message,
             AdditionalData,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actualCiphertext.AsSpan().SequenceEqual(ExpectedCiphertextWithAdditionalData)).IsTrue();
@@ -49,12 +51,13 @@ public class Aegis256Tests
     [Test]
     public async Task Decrypt()
     {
-        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertext.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength(ExpectedCiphertext.Length)];
         var actual = Aegis256.Decrypt(
             actualPlaintext,
             ExpectedCiphertext,
             null,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actual).IsTrue();
@@ -64,12 +67,13 @@ public class Aegis256Tests
     [Test]
     public async Task DecryptWithAdditionalData()
     {
-        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength(ExpectedCiphertextWithAdditionalData.Length)];
         var actual = Aegis256.Decrypt(
             actualPlaintext,
             ExpectedCiphertextWithAdditionalData,
             AdditionalData,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actual).IsTrue();
@@ -79,14 +83,15 @@ public class Aegis256Tests
     [Test]
     public async Task DecryptFailed()
     {
-        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertext.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength(ExpectedCiphertext.Length)];
         var tamperedCiphertext = ExpectedCiphertext.ToArray();
         tamperedCiphertext[0] = 0;
         var actual = Aegis256.Decrypt(
             actualPlaintext,
             tamperedCiphertext,
             null,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actual).IsFalse();
@@ -95,14 +100,15 @@ public class Aegis256Tests
     [Test]
     public async Task DecryptWithAdditionalDataFailed()
     {
-        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength(ExpectedCiphertextWithAdditionalData.Length)];
         var tamperedCiphertext = ExpectedCiphertextWithAdditionalData.ToArray();
         tamperedCiphertext[0] = 0;
         var actual = Aegis256.Decrypt(
             actualPlaintext,
             tamperedCiphertext,
             AdditionalData,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actual).IsFalse();
@@ -111,14 +117,15 @@ public class Aegis256Tests
     [Test]
     public async Task DecryptWithTamperedAdditionalDataFailed()
     {
-        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength(ExpectedCiphertextWithAdditionalData.Length)];
         var tamperedAdditionalData = AdditionalData.ToArray();
         tamperedAdditionalData[0] = 0;
         var actual = Aegis256.Decrypt(
             actualPlaintext,
             ExpectedCiphertextWithAdditionalData,
             tamperedAdditionalData,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actual).IsFalse();
@@ -126,7 +133,7 @@ public class Aegis256Tests
     [Test]
     public async Task DecryptWithTamperedAdditionalDataAddCiphertextFailed()
     {
-        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength(ExpectedCiphertextWithAdditionalData.Length)];
         var tamperedCiphertext = ExpectedCiphertextWithAdditionalData.ToArray();
         tamperedCiphertext[0] = 0;
         var tamperedAdditionalData = AdditionalData.ToArray();
@@ -135,7 +142,8 @@ public class Aegis256Tests
             actualPlaintext,
             tamperedCiphertext,
             tamperedAdditionalData,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actual).IsFalse();
@@ -144,14 +152,15 @@ public class Aegis256Tests
     [Test]
     public async Task EncryptDetached()
     {
-        var actualCiphertext = new byte[(ulong)Message.Length];
-        var tagBytes = (int)Aegis256.AdditionalBytes;
+        var actualCiphertext = new byte[Message.Length];
+        var tagBytes = Aegis256.AdditionalBytes;
         var actualTag = new byte[tagBytes];
         Aegis256.EncryptDetached(
             actualCiphertext, actualTag,
             Message,
             null,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actualTag.AsSpan().SequenceEqual(ExpectedCiphertext.AsSpan(^tagBytes..))).IsTrue();
@@ -162,13 +171,14 @@ public class Aegis256Tests
     public async Task EncryptDetachedWithAdditionalData()
     {
         var actualCiphertext = new byte[Message.Length];
-        var tagBytes = (int)Aegis256.AdditionalBytes;
+        var tagBytes = Aegis256.AdditionalBytes;
         var actualTag = new byte[tagBytes];
         Aegis256.EncryptDetached(
             actualCiphertext, actualTag,
             Message,
             AdditionalData,
-            Nonce, Key
+            Nonce, Key,
+            out _
         );
 
         await Assert.That(actualTag.AsSpan().SequenceEqual(ExpectedCiphertextWithAdditionalData.AsSpan(^tagBytes..))).IsTrue();
@@ -178,8 +188,8 @@ public class Aegis256Tests
     [Test]
     public async Task DecryptDetached()
     {
-        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertext.Length)];
-        var tagBytes = (int)Aegis256.AdditionalBytes;
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength(ExpectedCiphertext.Length)];
+        var tagBytes = Aegis256.AdditionalBytes;
         var actual = Aegis256.DecryptDetached(
             actualPlaintext,
             ExpectedCiphertext.AsSpan(..^tagBytes),
@@ -195,8 +205,8 @@ public class Aegis256Tests
     [Test]
     public async Task DecryptDetachedWithAdditionalData()
     {
-        var actualPlaintext = new byte[Aegis256.GetPlaintextLength((ulong)ExpectedCiphertextWithAdditionalData.Length)];
-        var tagBytes = (int)Aegis256.AdditionalBytes;
+        var actualPlaintext = new byte[Aegis256.GetPlaintextLength(ExpectedCiphertextWithAdditionalData.Length)];
+        var tagBytes = Aegis256.AdditionalBytes;
         var actual = Aegis256.DecryptDetached(
             actualPlaintext,
             ExpectedCiphertextWithAdditionalData.AsSpan(..^tagBytes),

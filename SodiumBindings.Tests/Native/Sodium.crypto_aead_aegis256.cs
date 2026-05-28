@@ -9,12 +9,6 @@ public partial class Sodium
     }
 
     [Test]
-    public async Task CryptoAeadAegis256Nsecbytes()
-    {
-        await Assert.That(crypto_aead_aegis256_nsecbytes()).IsEqualTo(0u);
-    }
-
-    [Test]
     public async Task CryptoAeadAegis256Npubbytes()
     {
         await Assert.That(crypto_aead_aegis256_npubbytes()).IsEqualTo(32u);

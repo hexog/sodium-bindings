@@ -47,6 +47,6 @@ public partial class Sodium
     [Test]
     public async Task CryptoGenerichashStatebytes()
     {
-        await Assert.That(crypto_generichash_statebytes()).IsEqualTo(GenericHash.StateBytes);
+        await Assert.That(crypto_generichash_statebytes()).IsEqualTo(384u);
     }
 }

@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace SodiumBindings.Native;
+namespace SodiumBindings.Interop;
 
 [CustomMarshaller(typeof(string), MarshalMode.Default, typeof(ConstCStringMarshaller))]
 internal static unsafe class ConstCStringMarshaller

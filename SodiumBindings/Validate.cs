@@ -5,57 +5,34 @@ namespace SodiumBindings;
 
 internal static class Validate
 {
-    public static void Range<TActualNumber, TExpectedNumber>(
-        TActualNumber value,
-        TExpectedNumber min,
-        TExpectedNumber max,
+    public static void Range<TNumber>(
+        TNumber value,
+        TNumber min,
+        TNumber max,
         [CallerArgumentExpression(nameof(value))]
         string? valueExpression = null,
         [CallerArgumentExpression(nameof(min))]
         string? minExpression = null,
         [CallerArgumentExpression(nameof(max))]
         string? maxExpression = null
-    )
-        where TActualNumber : INumber<TActualNumber>
-        where TExpectedNumber : INumber<TExpectedNumber>
+    ) where TNumber : INumber<TNumber>
     {
-        var valueNumber = TExpectedNumber.CreateChecked(value);
-        if (valueNumber < min || valueNumber > max)
+        if (value < min || value > max)
         {
             throw new SodiumException(
                 $"Expected '{valueExpression}' to be between '{minExpression}' = {min} and '{maxExpression}' = {max} but found {value}");
         }
     }
 
-    public static void Equals<TActualNumber, TExpectedNumber>(
-        TActualNumber value, TExpectedNumber expected,
+    public static void GreaterOrEqualTo<TNumber>(
+        TNumber value, TNumber expected,
         [CallerArgumentExpression(nameof(value))]
         string? valueExpression = null,
         [CallerArgumentExpression(nameof(expected))]
         string? expectedExpression = null
-    )
-        where TActualNumber : INumber<TActualNumber>
-        where TExpectedNumber : INumber<TExpectedNumber>
+    ) where TNumber : INumber<TNumber>
     {
-        var valueNumber = TExpectedNumber.CreateChecked(value);
-        if (valueNumber != expected)
-        {
-            throw new SodiumException($"Expected '{valueExpression}' = {value} to be '{expectedExpression}' = {expected}");
-        }
-    }
-
-    public static void GreaterOrEqualTo<TActualNumber, TExpectedNumber>(
-        TActualNumber value, TExpectedNumber expected,
-        [CallerArgumentExpression(nameof(value))]
-        string? valueExpression = null,
-        [CallerArgumentExpression(nameof(expected))]
-        string? expectedExpression = null
-    )
-        where TActualNumber : INumber<TActualNumber>
-        where TExpectedNumber : INumber<TExpectedNumber>
-    {
-        var valueNumber = TExpectedNumber.CreateChecked(value);
-        if (valueNumber < expected)
+        if (value < expected)
         {
             throw new SodiumException($"Expected '{valueExpression}' = {value} to be '{expectedExpression}' = {expected} or greater");
         }

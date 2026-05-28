@@ -2,13 +2,13 @@ namespace SodiumBindings;
 
 public static class KeyExchange
 {
-    public static ulong PublicKeyBytes => crypto_kx_publickeybytes();
+    public static int PublicKeyBytes { get; } = (int)crypto_kx_publickeybytes();
 
-    public static ulong SecretKeyBytes => crypto_kx_secretkeybytes();
+    public static int SecretKeyBytes { get; } = (int)crypto_kx_secretkeybytes();
 
-    public static ulong SeedBytes => crypto_kx_seedbytes();
+    public static int SeedBytes { get; } = (int)crypto_kx_seedbytes();
 
-    public static ulong SessionKeyBytes => crypto_kx_sessionkeybytes();
+    public static int SessionKeyBytes { get; } = (int)crypto_kx_sessionkeybytes();
 
     public static void GenerateKeyPair(
         Span<byte> publicKey,

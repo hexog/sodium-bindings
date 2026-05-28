@@ -79,10 +79,10 @@ public class BoxTests
     }
 
     [Test]
-    public async Task GeneratedPrecalculatedKey()
+    public async Task GeneratePrecalculatedKey()
     {
         var key = new byte[Box.PrecalculatedKeyBytes];
-        Box.GeneratedPrecalculatedKey(key, BobPublicKey, AliceSecretKey);
+        Box.GeneratePrecalculatedKey(key, BobPublicKey, AliceSecretKey);
         await Assert.That(key.AsSpan().SequenceEqual(PrecalculatedKey)).IsTrue();
     }
 

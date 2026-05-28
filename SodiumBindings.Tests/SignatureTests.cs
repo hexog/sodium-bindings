@@ -45,17 +45,17 @@ public class SignatureTests
     [Test]
     public async Task Sign()
     {
-        var signedMessage = new byte[(ulong)Message.Length + Signature.SignatureBytes];
-        var signatureLength = Signature.Sign(signedMessage, Message, SecretKey);
+        var signedMessage = new byte[Message.Length + Signature.SignatureBytes];
+        Signature.Sign(signedMessage, Message, SecretKey, out var signatureMessageLength);
         await Assert.That(signedMessage.AsSpan().SequenceEqual(ExpectedSignedMessage)).IsTrue();
-        await Assert.That(signatureLength).IsGreaterThan((ulong)Message.Length);
+        await Assert.That(signatureMessageLength).IsGreaterThan(Message.Length);
     }
 
     [Test]
     public async Task SignDetached()
     {
         var actualSignature = new byte[Signature.SignatureBytes];
-        var signatureLength = Signature.SignDetached(actualSignature, Message, SecretKey);
+        Signature.SignDetached(actualSignature, Message, SecretKey, out var signatureLength);
         await Assert.That(actualSignature.AsSpan().SequenceEqual(ExpectedSignature)).IsTrue();
         await Assert.That(signatureLength).IsEqualTo(Signature.SignatureBytes);
     }
@@ -67,8 +67,9 @@ public class SignatureTests
         using var incrementalSignature = Signature.Create();
         incrementalSignature.Update(Message[..4]);
         incrementalSignature.Update(Message[4..]);
-        incrementalSignature.Create(actualSignature, SecretKey);
+        incrementalSignature.Create(actualSignature, SecretKey, out var signatureLength);
         await Assert.That(actualSignature.AsSpan().SequenceEqual(ExpectedMultipartSignature)).IsTrue();
+        await Assert.That(signatureLength).IsEqualTo(Signature.SignatureBytes);
     }
 
     [Test]
@@ -77,7 +78,7 @@ public class SignatureTests
         var message = new byte[Message.Length];
         var actual = Signature.Verify(message, ExpectedSignedMessage, PublicKey, out var messageLength);
         await Assert.That(actual).IsTrue();
-        await Assert.That(messageLength).IsEqualTo((ulong)Message.Length);
+        await Assert.That(messageLength).IsEqualTo(Message.Length);
         await Assert.That(message.AsSpan().SequenceEqual(Message)).IsTrue();
     }
 

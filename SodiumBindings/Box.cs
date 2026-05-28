@@ -2,38 +2,28 @@ namespace SodiumBindings;
 
 public static class Box
 {
-    public static ulong PublicKeyBytes => crypto_box_publickeybytes();
+    public static int PublicKeyBytes { get; } = (int)crypto_box_publickeybytes();
 
-    public static ulong SecretKeyBytes => crypto_box_secretkeybytes();
+    public static int SecretKeyBytes { get; } = (int)crypto_box_secretkeybytes();
 
-    public static ulong MacBytes => crypto_box_macbytes();
+    public static int MacBytes { get; } = (int)crypto_box_macbytes();
 
-    public static ulong NonceBytes => crypto_box_noncebytes();
+    public static int NonceBytes { get; } = (int)crypto_box_noncebytes();
 
-    public static ulong SeedBytes => crypto_box_seedbytes();
+    public static int SeedBytes { get; } = (int)crypto_box_seedbytes();
 
-    public static ulong BeforeNonceMessageBytes => crypto_box_beforenmbytes();
+    public static int BeforeNonceMessageBytes { get; } = (int)crypto_box_beforenmbytes();
 
-    public static ulong PrecalculatedKeyBytes => BeforeNonceMessageBytes;
+    public static int PrecalculatedKeyBytes => BeforeNonceMessageBytes;
 
-    public static ulong GetCiphertextLength(ulong plaintextLength)
+    public static int GetCiphertextLength(int plaintextLength)
     {
         return MacBytes + plaintextLength;
     }
 
-    public static int GetCiphertextLength(int plaintextLength)
-    {
-        return checked((int)GetCiphertextLength((ulong)plaintextLength));
-    }
-
-    public static ulong GetPlaintextLength(ulong ciphertextLength)
+    public static int GetPlaintextLength(int ciphertextLength)
     {
         return ciphertextLength - MacBytes;
-    }
-
-    public static int GetPlaintextLength(int plaintextLength)
-    {
-        return checked((int)GetPlaintextLength((ulong)plaintextLength));
     }
 
     public static void GenerateKeyPair(
@@ -73,7 +63,8 @@ public static class Box
         Validate.GreaterOrEqualTo(publicKey.Length, PublicKeyBytes);
         Validate.GreaterOrEqualTo(secretKey.Length, SecretKeyBytes);
 
-        crypto_box_easy(ciphertext, plaintext, (ulong)plaintext.Length, nonce, publicKey, secretKey).EnsureSuccess();
+        var plen = (ulong)plaintext.Length;
+        crypto_box_easy(ciphertext, plaintext, plen, nonce, publicKey, secretKey).EnsureSuccess();
     }
 
     public static void Decrypt(
@@ -89,7 +80,8 @@ public static class Box
         Validate.GreaterOrEqualTo(publicKey.Length, PublicKeyBytes);
         Validate.GreaterOrEqualTo(secretKey.Length, SecretKeyBytes);
 
-        crypto_box_open_easy(plaintext, ciphertext, (ulong)ciphertext.Length, nonce, publicKey, secretKey).EnsureSuccess();
+        var clen = (ulong)ciphertext.Length;
+        crypto_box_open_easy(plaintext, ciphertext, clen, nonce, publicKey, secretKey).EnsureSuccess();
     }
 
     public static void EncryptDetached(
@@ -107,7 +99,8 @@ public static class Box
         Validate.GreaterOrEqualTo(publicKey.Length, PublicKeyBytes);
         Validate.GreaterOrEqualTo(secretKey.Length, SecretKeyBytes);
 
-        crypto_box_detached(ciphertext, mac, plaintext, (ulong)plaintext.Length, nonce, publicKey, secretKey).EnsureSuccess();
+        var plen = (ulong)plaintext.Length;
+        crypto_box_detached(ciphertext, mac, plaintext, plen, nonce, publicKey, secretKey).EnsureSuccess();
     }
 
     public static void DecryptDetached(
@@ -125,10 +118,11 @@ public static class Box
         Validate.GreaterOrEqualTo(publicKey.Length, PublicKeyBytes);
         Validate.GreaterOrEqualTo(secretKey.Length, SecretKeyBytes);
 
-        crypto_box_open_detached(plaintext, ciphertext, mac, (ulong)ciphertext.Length, nonce, publicKey, secretKey).EnsureSuccess();
+        var clen = (ulong)ciphertext.Length;
+        crypto_box_open_detached(plaintext, ciphertext, mac, clen, nonce, publicKey, secretKey).EnsureSuccess();
     }
 
-    public static void GeneratedPrecalculatedKey(
+    public static void GeneratePrecalculatedKey(
         Span<byte> key,
         ReadOnlySpan<byte> publicKey,
         ReadOnlySpan<byte> secretKey
@@ -152,7 +146,8 @@ public static class Box
         Validate.GreaterOrEqualTo(nonce.Length, NonceBytes);
         Validate.GreaterOrEqualTo(key.Length, PrecalculatedKeyBytes);
 
-        crypto_box_easy_afternm(ciphertext, plaintext, (ulong)plaintext.Length, nonce, key).EnsureSuccess();
+        var plen = (ulong)plaintext.Length;
+        crypto_box_easy_afternm(ciphertext, plaintext, plen, nonce, key).EnsureSuccess();
     }
 
     public static void DecryptPrecalculated(
@@ -166,7 +161,8 @@ public static class Box
         Validate.GreaterOrEqualTo(nonce.Length, NonceBytes);
         Validate.GreaterOrEqualTo(key.Length, PrecalculatedKeyBytes);
 
-        crypto_box_open_easy_afternm(plaintext, ciphertext, (ulong)ciphertext.Length, nonce, key).EnsureSuccess();
+        var clen = (ulong)ciphertext.Length;
+        crypto_box_open_easy_afternm(plaintext, ciphertext, clen, nonce, key).EnsureSuccess();
     }
 
     public static void EncryptPrecalculatedDetached(
@@ -182,7 +178,8 @@ public static class Box
         Validate.GreaterOrEqualTo(nonce.Length, NonceBytes);
         Validate.GreaterOrEqualTo(key.Length, PrecalculatedKeyBytes);
 
-        crypto_box_detached_afternm(ciphertext, mac, plaintext, (ulong)plaintext.Length, nonce, key).EnsureSuccess();
+        var plen = (ulong)plaintext.Length;
+        crypto_box_detached_afternm(ciphertext, mac, plaintext, plen, nonce, key).EnsureSuccess();
     }
 
     public static void DecryptPrecalculatedDetached(
@@ -198,6 +195,7 @@ public static class Box
         Validate.GreaterOrEqualTo(nonce.Length, NonceBytes);
         Validate.GreaterOrEqualTo(key.Length, PrecalculatedKeyBytes);
 
-        crypto_box_open_detached_afternm(plaintext, ciphertext, mac, (ulong)ciphertext.Length, nonce, key).EnsureSuccess();
+        var clen = (ulong)ciphertext.Length;
+        crypto_box_open_detached_afternm(plaintext, ciphertext, mac, clen, nonce, key).EnsureSuccess();
     }
 }
