@@ -20,7 +20,6 @@
     <RepositoryUrl>https://github.com/hexog/sodium-bindings.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>libsodium sodium cryptography encryption hashing signatures p-invoke</PackageTags>
-    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
