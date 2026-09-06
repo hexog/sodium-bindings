@@ -9,7 +9,7 @@
 
     <IsPackable>true</IsPackable>
     <PackageId>SodiumBindings</PackageId>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>1.1.0</VersionPrefix>
     <Title>SodiumBindings</Title>
     <Authors>Egor Nikulin</Authors>
     <Description>Modern .NET bindings for libsodium cryptographic APIs.</Description>

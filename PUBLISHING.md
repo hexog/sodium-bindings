@@ -15,7 +15,7 @@ This guide describes the manual release process for package maintainers.
 2. From the repository root, restore and run tests:
 
    ```sh
-   dotnet restore SodiumBindings.slnx
+   dotnet restore SodiumBindings.Tests/SodiumBindings.Tests.csproj
    dotnet run --project SodiumBindings.Tests/SodiumBindings.Tests.csproj \
      --configuration Release \
      --no-restore \
@@ -71,7 +71,7 @@ Export the API key for the current shell and push the package:
 
 ```shell
 export NUGET_API_KEY="your-scoped-nuget-api-key"
-dotnet nuget push artifacts/SodiumBindings.1.0.0.nupkg \
+dotnet nuget push artifacts/SodiumBindings.<version>.nupkg \
   --source https://api.nuget.org/v3/index.json
 unset NUGET_API_KEY
 ```
